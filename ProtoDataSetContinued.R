@@ -2,7 +2,7 @@ library(dplyr)
 library(XML)
 library(europepmc)
 
-data1 <- europepmc::epmc_search('opioid', limit = 10000)
+data1 <- europepmc::epmc_search('opioid', limit = 100000)
 data <- data1 %>% filter(!is.na(pmcid))
 
 #Create list
