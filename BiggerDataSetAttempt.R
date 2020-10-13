@@ -4,7 +4,7 @@ library(europepmc)
 
 #This seems to work as a way to filter by year
 #Need to find way to search for pubYear instead of firstPDate
-data2 <- europepmc::epmc_search(query = '(opioid) AND FIRST_PDATE:2019', limit = 10000)
+data2 <- europepmc::epmc_search(query = '(opioid) AND PUB_YEAR:2019', limit = 100)
 data <- data2 %>% filter(!is.na(pmcid))
 
 #Create list
