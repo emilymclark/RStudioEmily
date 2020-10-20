@@ -3,17 +3,16 @@ library(XML)
 library(europepmc)
 
 #This seems to work as a way to filter by year
-#Need to find way to search for pubYear instead of firstPDate
-data2 <- europepmc::epmc_search(query = '(opioid) AND PUB_YEAR:2019', limit = 100)
-data <- data2 %>% filter(!is.na(pmcid))
-
+#Search by term, pub year, and *make sure has pmcid
+data <- europepmc::epmc_search(query = '(opioid) AND PUB_YEAR:[2016 TO 2018] AND IN_EPMC:y',
+                                limit = 1000, sort = "cited")
 #Create list
 pmcid_list <- as.list(data$pmcid)
 
 # Convert the input xml file to a data frame.
 #Tried to do 100 instead of 10 and it took so long
 TextList <- list()
-for (i in pmcid_list[1:100]){
+for (i in pmcid_list[1:50]){
   tryCatch({
     temp <- europepmc::epmc_ftxt(i)}, error=function(e){})
   xml_1 <- xmlParse(temp)
