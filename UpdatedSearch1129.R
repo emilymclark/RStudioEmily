@@ -56,7 +56,7 @@ text_data <- map_df(data$pmcid, extract_text)
 text_data %>% filter(nchar(body)>1)%>% nrow()
 
 #but then what's this line for?
-text_data <- text
+#text_data <- text
 
 #combine data frames
 AllData <- text_data %>% inner_join(data, by = "pmcid") %>%
@@ -65,12 +65,12 @@ AllData <- text_data %>% inner_join(data, by = "pmcid") %>%
 
 #Filter data to include only rows that have both abstract and body text data. 
 AllData2 <- subset(AllData,AllData$abstract>0 & AllData$body>0)
-y
+
 #Write a function that:
 SentTok <- function(x){
     #Tokenizes by sentence 
     #Need to figure out how to apply to any character column
-  sent <- unnest_tokens(AllData2, sentences, ..., token = "sentences")
+  sent <- unnest_tokens(AllData2, sentences, , token = "sentences")
     #length(x)?
     #nrow(sent)
       #shows length of df
@@ -107,18 +107,28 @@ Totals <- cbind(n_sent,n_topat,n_tosoc,n_both)
 colnames(Totals) <- c("n_sent", "n_pat", "n_soc", "n_both")
 #Returns a df row: n_sent, n_pat, n_soc
 }
+
 #Seems that some sentences may have multiple obligations if I try to run all together 
 #ob_sent$obto <- ifelse(str_detect(ob_sent$sentences, "patient|treat|pain|suffer|relief|relieve")==TRUE,"patient", ifelse(str_detect(ob_sent$sentences,"societ|communit|public|law")==TRUE,"society",0))
 
-  
-#This works to count but doesn't create df 
-table(ob_sent$topat,ob_sent$tosoc)
-tab <- count(ob_sent$tosoc == 1)
+#4. Apply function abstracts column
 
-#counts but table is weird, better ways for sure
-  #stats <- count(ob_sent, topat, tosoc)
+maybe(lapply(myValues, function(x) sum(abs(df$a) < x) / nrow(df)))
+      #perhaps <- apply(AllData2, SentTok, abstract)
+        #Error in match.fun(FUN) : object 'abstract' not found
+      #perhaps <- apply(AllData2$abstract, SentTok)
+        #Error in match.fun(FUN) : argument "FUN" is missing, with no default
+      #outreg <- by(AllData2, abstract, FUN=SentTok())
+        #Error in by.data.frame(AllData2, abstract, FUN = SentTok()) : object 'abstract' not found
+      #outreg <- by(AllData2, AllData2$abstract, FUN=SentTok())
+        #Error in as.name(input) : attempt to use zero-length variable name 
 
-wtf <- ob_sent %>%
-  group_by(topat,tosoc) %>%
-  tally()
-count(ob_sent$tosoc,"1")
+
+
+#5. Rename columns in merged dataframe: an_sent, an_pat, an_soc
+#6. Apply function to body text column
+#7. Join abstracts and body text dataframes
+#8. Create pairwise correlation plots:
+  #a. Abstract vs. body text percent obligation
+  #b. Abstract vs. body text precent patient
+  #c. Abstract vs. body text percent society
