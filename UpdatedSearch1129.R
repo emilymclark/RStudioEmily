@@ -83,14 +83,16 @@ SentTok <- function(x){
 
 #4. Apply function to abstracts column
 
-      #test_abstracts <- map_df(AllData2$abstracts[1:5],SentTok)
-          #Produces empty df
+      #test_abstracts <- map_df(AllData2$abstract[1:5],SentTok)
+          # Error in as.name(input) : attempt to use zero-length variable name 
       #test_abstracts <- AllData2 %>% map_df(abstract[1:5],SentTok)
           #Error in as_mapper(.f, ...) : object 'abstract' not found
       #test_abstracts <- map_df(AllData2,abstract[1:5],SentTok)
           #Error in as_mapper(.f, ...) : object 'abstract' not found
       #test_abstracts <- map_df(AllData2$abstract[1:5],1,SentTok)
           #Error: Argument 1 must have names.
+      #test_abstracts <- map_df(AllData2,SentTok,abstract[1:5])
+          #Error in map(.x, .f, ...) : object 'abstract' not found
       #test_abstracts <- AllData2 %>% map_df(abstract[1:5],1,SentTok)
           #Error in as_mapper(.f, ...) : object 'abstract' not found
       #test_abstracts <- apply(AllData2, SentTok, abstract)
