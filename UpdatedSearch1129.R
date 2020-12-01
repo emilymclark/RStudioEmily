@@ -68,59 +68,39 @@ AllData2 <- subset(AllData,AllData$abstract>0 & AllData$body>0)
 
 #Write a function that:
 SentTok <- function(x){
-    #Tokenizes by sentence 
-    #Need to figure out how to apply to any character column
   sent <- unnest_tokens(AllData2, sentences, , token = "sentences")
-    #length(x)?
-    #nrow(sent)
-      #shows length of df
-    #n_sent <- length(sent)
-      #Creates value showing number of variables
-    #Creates value with df length (# of tokens)
-      #n_sent <- sent %>% nrow()
-#Counts the total number of sentences
-  #Is this per article or total sentences?
-    #per article
-      #countperart <- sent %>%
-       #group_by(pmcid) %>%
-       #tally()
-    #Merge sent count per article w/ df
-      #sentcount <- merge(sent, countperart, by = c("pmcid","pmcid"))
-  #Evaluates each sentence for statements of obligation 
-ob_sent <- filter(sent, str_detect(sent$sentences,"oblig|responsib|need|must|duty|duties|account|bound| owe|require|liability")==TRUE)
-  #Classifies obligation sentences: patient vs. society 
-ob_sent$topat <- ifelse(str_detect(ob_sent$sentences,"patient|treat|pain|suffer|relief|relieve")==TRUE,1,0)
-ob_sent$tosoc <- ifelse(str_detect(ob_sent$sentences,"societ|communit|public|law")==TRUE,1,0)
-    #Creates table with count 
-    #This does that but not efficiently 
-      #stats <- count(ob_sent, topat, tosoc)
-    #This creates readable output in console
-      #table(ob_sent$topat,ob_sent$tosoc)
-  #Creates single integer dfs that count totals
-n_sent <- sent %>% tally()
-n_topat <- ob_sent %>% tally(topat)
-n_tosoc <- ob_sent %>% tally(tosoc)
-n_both <- ob_sent %>% tally(topat & tosoc)
-  #bind all into one table
-Totals <- cbind(n_sent,n_topat,n_tosoc,n_both)
-  #rename columns
-colnames(Totals) <- c("n_sent", "n_pat", "n_soc", "n_both")
-#Returns a df row: n_sent, n_pat, n_soc
+  ob_sent <- filter(sent, str_detect(sent$sentences,"oblig|responsib|need|must|duty|duties|account|bound| owe|require|liability")==TRUE)
+  ob_sent$topat <- ifelse(str_detect(ob_sent$sentences,"patient|treat|pain|suffer|relief|relieve")==TRUE,1,0)
+  ob_sent$tosoc <- ifelse(str_detect(ob_sent$sentences,"societ|communit|public|law")==TRUE,1,0)
+  n_sent <- sent %>% tally()
+  n_topat <- ob_sent %>% tally(topat)
+  n_tosoc <- ob_sent %>% tally(tosoc)
+  n_both <- ob_sent %>% tally(topat & tosoc)
+  Totals <- cbind(n_sent,n_topat,n_tosoc,n_both)
+  colnames(Totals) <- c("n_sent", "n_pat", "n_soc", "n_both")
 }
 
-#Seems that some sentences may have multiple obligations if I try to run all together 
-#ob_sent$obto <- ifelse(str_detect(ob_sent$sentences, "patient|treat|pain|suffer|relief|relieve")==TRUE,"patient", ifelse(str_detect(ob_sent$sentences,"societ|communit|public|law")==TRUE,"society",0))
 
 #4. Apply function to abstracts column
-SentTok(abstract)
-      #perhaps <- apply(AllData2, SentTok, abstract)
-        #Error in match.fun(FUN) : object 'abstract' not found
-      #perhaps <- apply(AllData2$abstract, SentTok)
-        #Error in match.fun(FUN) : argument "FUN" is missing, with no default
-      #outreg <- by(AllData2, abstract, FUN=SentTok())
-        #Error in by.data.frame(AllData2, abstract, FUN = SentTok()) : object 'abstract' not found
-      #outreg <- by(AllData2, AllData2$abstract, FUN=SentTok())
-        #Error in as.name(input) : attempt to use zero-length variable name 
+
+      #test_abstracts <- map_df(AllData2$abstracts[1:5],SentTok)
+          #Produces empty df
+      #test_abstracts <- AllData2 %>% map_df(abstract[1:5],SentTok)
+          #Error in as_mapper(.f, ...) : object 'abstract' not found
+      #test_abstracts <- map_df(AllData2,abstract[1:5],SentTok)
+          #Error in as_mapper(.f, ...) : object 'abstract' not found
+      #test_abstracts <- map_df(AllData2$abstract[1:5],1,SentTok)
+          #Error: Argument 1 must have names.
+      #test_abstracts <- AllData2 %>% map_df(abstract[1:5],1,SentTok)
+          #Error in as_mapper(.f, ...) : object 'abstract' not found
+      #test_abstracts <- apply(AllData2, SentTok, abstract)
+          #Error in match.fun(FUN) : object 'abstract' not found
+      #test_abstracts <- apply(AllData2$abstract, SentTok)
+          #Error in match.fun(FUN) : argument "FUN" is missing, with no default
+      #test_abstracts <- by(AllData2, abstract, FUN=SentTok())
+          #Error in by.data.frame(AllData2, abstract, FUN = SentTok()) : object 'abstract' not found
+      #test_abstracts <- by(AllData2, AllData2$abstract, FUN=SentTok())
+          #Error in as.name(input) : attempt to use zero-length variable name 
 
 
 
