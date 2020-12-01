@@ -111,9 +111,8 @@ colnames(Totals) <- c("n_sent", "n_pat", "n_soc", "n_both")
 #Seems that some sentences may have multiple obligations if I try to run all together 
 #ob_sent$obto <- ifelse(str_detect(ob_sent$sentences, "patient|treat|pain|suffer|relief|relieve")==TRUE,"patient", ifelse(str_detect(ob_sent$sentences,"societ|communit|public|law")==TRUE,"society",0))
 
-#4. Apply function abstracts column
-
-maybe(lapply(myValues, function(x) sum(abs(df$a) < x) / nrow(df)))
+#4. Apply function to abstracts column
+SentTok(abstract)
       #perhaps <- apply(AllData2, SentTok, abstract)
         #Error in match.fun(FUN) : object 'abstract' not found
       #perhaps <- apply(AllData2$abstract, SentTok)
