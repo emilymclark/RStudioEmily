@@ -66,50 +66,44 @@ AllData <- text_data %>% inner_join(data, by = "pmcid") %>%
 #Filter data to include only rows that have both abstract and body text data. 
 AllData2 <- subset(AllData,AllData$abstract>0 & AllData$body>0)
 
-#Write a function that:
-SentTok <- function(x){
-  sent <- unnest_tokens(AllData2, sentences, , token = "sentences")
-  ob_sent <- filter(sent, str_detect(sent$sentences,"oblig|responsib|need|must|duty|duties|account|bound| owe|require|liability")==TRUE)
-  ob_sent$topat <- ifelse(str_detect(ob_sent$sentences,"patient|treat|pain|suffer|relief|relieve")==TRUE,1,0)
-  ob_sent$tosoc <- ifelse(str_detect(ob_sent$sentences,"societ|communit|public|law")==TRUE,1,0)
-  n_sent <- sent %>% tally()
-  n_topat <- ob_sent %>% tally(topat)
-  n_tosoc <- ob_sent %>% tally(tosoc)
-  n_both <- ob_sent %>% tally(topat & tosoc)
-  Totals <- cbind(n_sent,n_topat,n_tosoc,n_both)
-  colnames(Totals) <- c("n_sent", "n_pat", "n_soc", "n_both")
-}
+#TOKENIZE ABSTRACT
+sent <- unnest_tokens(AllData2, ab_sentences, "abstract", token = "sentences")
+#APPLY TO ABSTRACT
+ob_sent <- subset(sent, str_detect(sent$ab_sentences,"oblig|responsib|need|must|duty|duties|account|bound| owe|require|liability")==TRUE)
+ob_sent$topat <- ifelse(str_detect(ob_sent$ab_sentences,"patient|treat|pain|suffer|relief|relieve")==TRUE,1,0)
+ob_sent$tosoc <- ifelse(str_detect(ob_sent$ab_sentences,"societ|communit|public|law")==TRUE,1,0)
+n_sent <- sent %>% tally()
+n_topat <- ob_sent %>% tally(topat)
+n_tosoc <- ob_sent %>% tally(tosoc)
+n_both <- ob_sent %>% tally(topat & tosoc)
+Totals_ab <- cbind(n_sent,n_topat,n_tosoc,n_both)
+#Rename columns in merged dataframe: an_sent, an_pat, an_soc
+colnames(Totals_ab) <- c("an_sent", "an_pat", "an_soc", "an_both")
 
+#TOKENIZE BODY
+sent2 <- unnest_tokens(AllData2, bo_sentences, "body", token = "sentences")
+#APPLY TO BODY
+ob_sent2 <- subset(sent2, str_detect(sent2$bo_sentences,"oblig|responsib|need|must|duty|duties|account|bound| owe|require|liability")==TRUE)
+ob_sent2$topat <- ifelse(str_detect(ob_sent2$bo_sentences,"patient|treat|pain|suffer|relief|relieve")==TRUE,1,0)
+ob_sent2$tosoc <- ifelse(str_detect(ob_sent2$bo_sentences,"societ|communit|public|law")==TRUE,1,0)
+n_sent <- sent2 %>% tally()
+n_topat <- ob_sent2 %>% tally(topat)
+n_tosoc <- ob_sent2 %>% tally(tosoc)
+n_both <- ob_sent2 %>% tally(topat & tosoc)
+Totals_bo <- cbind(n_sent,n_topat,n_tosoc,n_both)
+#Rename columns in merged dataframe: an_sent, an_pat, an_soc
+colnames(Totals_bo) <- c("bo_sent", "bo_pat", "bo_soc", "bo_both")
+
+#combine tokenized dfs, 
 
 #4. Apply function to abstracts column
+test_body <- map_df(AllData2$sentences[1:5],SentTok)
 
-      #test_abstracts <- map_df(AllData2$abstract[1:5],SentTok)
-          # Error in as.name(input) : attempt to use zero-length variable name 
-      #test_abstracts <- AllData2 %>% map_df(abstract[1:5],SentTok)
-          #Error in as_mapper(.f, ...) : object 'abstract' not found
-      #test_abstracts <- map_df(AllData2,abstract[1:5],SentTok)
-          #Error in as_mapper(.f, ...) : object 'abstract' not found
-      #test_abstracts <- map_df(AllData2$abstract[1:5],1,SentTok)
-          #Error: Argument 1 must have names.
-      #test_abstracts <- map_df(AllData2,SentTok,abstract[1:5])
-          #Error in map(.x, .f, ...) : object 'abstract' not found
-      #test_abstracts <- AllData2 %>% map_df(abstract[1:5],1,SentTok)
-          #Error in as_mapper(.f, ...) : object 'abstract' not found
-      #test_abstracts <- apply(AllData2, SentTok, abstract)
-          #Error in match.fun(FUN) : object 'abstract' not found
-      #test_abstracts <- apply(AllData2$abstract, SentTok)
-          #Error in match.fun(FUN) : argument "FUN" is missing, with no default
-      #test_abstracts <- by(AllData2, abstract, FUN=SentTok())
-          #Error in by.data.frame(AllData2, abstract, FUN = SentTok()) : object 'abstract' not found
-      #test_abstracts <- by(AllData2, AllData2$abstract, FUN=SentTok())
-          #Error in as.name(input) : attempt to use zero-length variable name 
-
-
-
-#5. Rename columns in merged dataframe: an_sent, an_pat, an_soc
 #6. Apply function to body text column
 #7. Join abstracts and body text dataframes
+
+butt <- cbind(Totals_ab,Totals_bo)
 #8. Create pairwise correlation plots:
   #a. Abstract vs. body text percent obligation
-  #b. Abstract vs. body text precent patient
+  #b. Abstract vs. body text percent patient
   #c. Abstract vs. body text percent society
