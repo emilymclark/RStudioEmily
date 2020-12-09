@@ -104,6 +104,7 @@ Totals_bo <- cbind(bn_sent,bn_topat,bn_tosoc,bn_both)
 #7. Join abstracts and body text dataframes
 tally(sent2, name = "to")
 tally(sent, name = "to")
+<<<<<<< HEAD
 test <- rbind(Totals_ab,Totals_bo)
 rownames(test) <- c(“ab”, “bo”)
 #8. Create pairwise correlation plots:
@@ -111,6 +112,14 @@ rownames(test) <- c(“ab”, “bo”)
 (test$an_sent,test$bo_sent)
 
 test %>%
+=======
+ <- rbind(Totals_ab,Totals_bo)
+rownames() <- c(“ab”, “bo”)
+#8. Create pairwise correlation plots:
+  #a. Abstract vs. body text percent obligation
+($an_sent,$bo_sent)
+
+>>>>>>> 7ff4e009d2e3ee7d0a3104cbefdeaffc2e436d73
 
   #b. Abstract vs. body text percent patient
   #c. Abstract vs. body text percent society
