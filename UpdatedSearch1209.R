@@ -98,8 +98,15 @@ Totals_bo <- cbind(bn_sent,bn_topat,bn_tosoc,bn_both)
 test <- rbind(Totals_ab,Totals_bo)
 rownames(test) <- c("abstract", "body")
 
+test$section <- c("ab","bo")
+
 #8. Create pairwise correlation plots:
   #a. Abstract vs. body text percent obligation
-pairs(test)
+#pairs(test)
+#Error in pairs.default(test) : non-numeric argument to 'pairs'
+
+corr_pat <- cor.test(x=test$n_sent, y=test$n_topat, method = 'spearman')
+
   #b. Abstract vs. body text percent patient
   #c. Abstract vs. body text percent society
+corr_soc <- cor.test(x=test$n_sent, y=test$n_tosoc, method = 'spearman')
