@@ -19,7 +19,7 @@ library(stringr)
 library(ggplot2)
 
 # Set Entrez API key (https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/)
-key = "2cdae0e32dfdfbd4751843f66c5c791d8409"
+key = ""
 set_entrez_key(key)
 
 # Functions ---------------------------------------------------------------
@@ -104,15 +104,12 @@ Totals_bo <- cbind(bn_sent,bn_topat,bn_tosoc,bn_both)
 #7. Join abstracts and body text dataframes
 tally(sent2, name = "to")
 tally(sent, name = "to")
-butt <- rbind(Totals_ab,Totals_bo)
-rownames(butt) <- c(“ab”, “bo”)
+ <- rbind(Totals_ab,Totals_bo)
+rownames() <- c(“ab”, “bo”)
 #8. Create pairwise correlation plots:
   #a. Abstract vs. body text percent obligation
-(butt$an_sent,butt$bo_sent)
+($an_sent,$bo_sent)
 
-butt %>% select(Industry:prop_US_Fed,number_of_arms,enrollment) %>% 
-  as.matrix() %>% 
-  rcorr()
 
   #b. Abstract vs. body text percent patient
   #c. Abstract vs. body text percent society
