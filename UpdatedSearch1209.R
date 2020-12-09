@@ -19,7 +19,7 @@ library(stringr)
 library(ggplot2)
 
 # Set Entrez API key (https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/)
-key = "2cdae0e32dfdfbd4751843f66c5c791d8409"
+key = ""
 set_entrez_key(key)
 
 # Functions ---------------------------------------------------------------
