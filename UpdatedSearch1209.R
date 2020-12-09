@@ -110,3 +110,6 @@ corr_pat <- cor.test(x=test$n_sent, y=test$n_topat, method = 'spearman')
   #b. Abstract vs. body text percent patient
   #c. Abstract vs. body text percent society
 corr_soc <- cor.test(x=test$n_sent, y=test$n_tosoc, method = 'spearman')
+cor(test$n_topat,test$n_sent,
+    method = "spearman"
+)
