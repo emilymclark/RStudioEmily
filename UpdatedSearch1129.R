@@ -15,9 +15,11 @@ library(tidytext)
 library(quanteda)
 library(tidyselect)
 library(tidyr)
+library(stringr)
+library(ggplot2)
 
 # Set Entrez API key (https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/)
-key = ""
+key = "2cdae0e32dfdfbd4751843f66c5c791d8409"
 set_entrez_key(key)
 
 # Functions ---------------------------------------------------------------
@@ -72,13 +74,13 @@ sent <- unnest_tokens(AllData2, ab_sentences, "abstract", token = "sentences")
 ob_sent <- subset(sent, str_detect(sent$ab_sentences,"oblig|responsib|need|must|duty|duties|account|bound| owe|require|liability")==TRUE)
 ob_sent$topat <- ifelse(str_detect(ob_sent$ab_sentences,"patient|treat|pain|suffer|relief|relieve")==TRUE,1,0)
 ob_sent$tosoc <- ifelse(str_detect(ob_sent$ab_sentences,"societ|communit|public|law")==TRUE,1,0)
-n_sent <- sent %>% tally()
-n_topat <- ob_sent %>% tally(topat)
-n_tosoc <- ob_sent %>% tally(tosoc)
-n_both <- ob_sent %>% tally(topat & tosoc)
-Totals_ab <- cbind(n_sent,n_topat,n_tosoc,n_both)
+an_sent <- sent %>% tally(,name = "n_sent")
+an_topat <- ob_sent %>% tally(topat, name = "n_topat")
+an_tosoc <- ob_sent %>% tally(tosoc, name = "n_tosoc")
+an_both <- ob_sent %>% tally(topat & tosoc, name = "n_both")
+Totals_ab <- cbind(an_sent,an_topat,an_tosoc,an_both)
 #Rename columns in merged dataframe: an_sent, an_pat, an_soc
-colnames(Totals_ab) <- c("an_sent", "an_pat", "an_soc", "an_both")
+
 
 #TOKENIZE BODY
 sent2 <- unnest_tokens(AllData2, bo_sentences, "body", token = "sentences")
@@ -86,24 +88,31 @@ sent2 <- unnest_tokens(AllData2, bo_sentences, "body", token = "sentences")
 ob_sent2 <- subset(sent2, str_detect(sent2$bo_sentences,"oblig|responsib|need|must|duty|duties|account|bound| owe|require|liability")==TRUE)
 ob_sent2$topat <- ifelse(str_detect(ob_sent2$bo_sentences,"patient|treat|pain|suffer|relief|relieve")==TRUE,1,0)
 ob_sent2$tosoc <- ifelse(str_detect(ob_sent2$bo_sentences,"societ|communit|public|law")==TRUE,1,0)
-n_sent <- sent2 %>% tally()
-n_topat <- ob_sent2 %>% tally(topat)
-n_tosoc <- ob_sent2 %>% tally(tosoc)
-n_both <- ob_sent2 %>% tally(topat & tosoc)
-Totals_bo <- cbind(n_sent,n_topat,n_tosoc,n_both)
+bn_sent <- sent2 %>% tally(, name = "n_sent")
+bn_topat <- ob_sent2 %>% tally(topat, name = "n_topat")
+bn_tosoc <- ob_sent2 %>% tally(tosoc, name = "n_tosoc")
+bn_both <- ob_sent2 %>% tally(topat & tosoc, name = "n_both")
+Totals_bo <- cbind(bn_sent,bn_topat,bn_tosoc,bn_both)
 #Rename columns in merged dataframe: an_sent, an_pat, an_soc
-colnames(Totals_bo) <- c("bo_sent", "bo_pat", "bo_soc", "bo_both")
+
 
 #combine tokenized dfs, 
 
-#4. Apply function to abstracts column
-test_body <- map_df(AllData2$sentences[1:5],SentTok)
+
 
 #6. Apply function to body text column
 #7. Join abstracts and body text dataframes
-
-butt <- cbind(Totals_ab,Totals_bo)
+tally(sent2, name = "to")
+tally(sent, name = "to")
+butt <- rbind(Totals_ab,Totals_bo)
+rownames(butt) <- c(“ab”, “bo”)
 #8. Create pairwise correlation plots:
   #a. Abstract vs. body text percent obligation
+(butt$an_sent,butt$bo_sent)
+
+butt %>% select(Industry:prop_US_Fed,number_of_arms,enrollment) %>% 
+  as.matrix() %>% 
+  rcorr()
+
   #b. Abstract vs. body text percent patient
   #c. Abstract vs. body text percent society
