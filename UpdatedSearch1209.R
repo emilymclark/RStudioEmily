@@ -100,6 +100,6 @@ rownames(test) <- c("abstract", "body")
 
 #8. Create pairwise correlation plots:
   #a. Abstract vs. body text percent obligation
-cor.test(test$n_sent,)
+pairs(test)
   #b. Abstract vs. body text percent patient
   #c. Abstract vs. body text percent society
