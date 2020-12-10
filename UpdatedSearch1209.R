@@ -124,6 +124,9 @@ corr_soc <- cor.test(x=test2$n_tosoc, y=test2$an_tosoc, method = 'spearman')
 
 #LETS TRY CREATING DIF DF
 
+#Here I kept all of the other df info and attached tallies
+#There is likely a prettier way of doing this 
+#To Abstract
 an_sent2 <- ob_sent %>%
   group_by(pmcid) %>%
   tally(,name = "an_sent")
@@ -132,15 +135,40 @@ sentcount <- merge(ob_sent, an_sent2, by = c("pmcid","pmcid"))
 an_topat2 <- ob_sent %>%
   group_by(pmcid) %>%
   tally(topat, name = "an_topat")
-sentcount2 <- merge(ob_sent, an_topat2, by = c("pmcid","pmcid"))
+sentcount2 <- merge(sentcount, an_topat2, by = c("pmcid","pmcid"))
 
 an_tosoc2 <- ob_sent %>%
   group_by(pmcid) %>%
   tally(tosoc, name = "an_tosoc")
+sentcount3 <- merge(sentcount2, an_tosoc2, by = c("pmcid","pmcid"))
+
 an_both2 <- ob_sent %>%
   group_by(pmcid) %>%
   tally(topat & tosoc, name = "an_both") 
+sentcount4 <- merge(sentcount3, an_both2, by = c("pmcid","pmcid"))
 
-bind <- cbind(an_topat2,an_tosoc2)
 
-oi <- do.call("rbind", list(an_sent2,an_topat2,an_tosoc2, an_both2))
+#To Body
+n_sent2 <- ob_sent2 %>%
+  group_by(pmcid) %>%
+  tally(,name = "n_sent")
+b_sentcount <- merge(ob_sent2, n_sent2, by = c("pmcid","pmcid"))
+
+n_topat2 <- ob_sent2 %>%
+  group_by(pmcid) %>%
+  tally(topat, name = "n_topat")
+b_sentcount2 <- merge(b_sentcount, n_topat2, by = c("pmcid","pmcid"))
+
+n_tosoc2 <- ob_sent2 %>%
+  group_by(pmcid) %>%
+  tally(tosoc, name = "n_tosoc")
+b_sentcount3 <- merge(b_sentcount2, n_tosoc2, by = c("pmcid","pmcid"))
+
+n_both2 <- ob_sent2 %>%
+  group_by(pmcid) %>%
+  tally(topat & tosoc, name = "n_both") 
+b_sentcount4 <- merge(b_sentcount3, n_both2, by = c("pmcid","pmcid"))
+
+#b. Abstract vs. body text percent patient
+corr_pat <- cor.test(x=sentcount4$an_topat, y=b_sentcount4$n_topat,method = 'spearman')
+#Error in cor.test.default(x = sentcount4$an_topat, y = b_sentcount4$n_topat,  : 'x' and 'y' must have the same length
