@@ -75,11 +75,15 @@ ob_sent <- subset(sent, str_detect(sent$ab_sentences,"oblig|responsib|need|must|
 ob_sent$topat <- ifelse(str_detect(ob_sent$ab_sentences,"patient|treat|pain|suffer|relief|relieve")==TRUE,1,0)
 ob_sent$tosoc <- ifelse(str_detect(ob_sent$ab_sentences,"societ|communit|public|law")==TRUE,1,0)
 #TALLY number of obligation sentences, to patient, to society, included BOTH column, but can be removed
-an_sent <- sent %>% tally(,name = "n_sent")
+an_sent <- ob_sent %>% tally(,name = "n_sent")
 an_topat <- ob_sent %>% tally(topat, name = "n_topat")
 an_tosoc <- ob_sent %>% tally(tosoc, name = "n_tosoc")
 an_both <- ob_sent %>% tally(topat & tosoc, name = "n_both")
 Totals_ab <- cbind(an_sent,an_topat,an_tosoc,an_both)
+
+#Duplicating df w/ dif column names
+Totals_ab2 <- cbind(an_sent,an_topat,an_tosoc,an_both)
+colnames(Totals_ab2) <- c("an_sent", "an_topat", "an_tosoc", "an_both")
 
 #TOKENIZE BODY
 sent2 <- unnest_tokens(AllData2, bo_sentences, "body", token = "sentences")
@@ -88,14 +92,18 @@ ob_sent2 <- subset(sent2, str_detect(sent2$bo_sentences,"oblig|responsib|need|mu
 ob_sent2$topat <- ifelse(str_detect(ob_sent2$bo_sentences,"patient|treat|pain|suffer|relief|relieve")==TRUE,1,0)
 ob_sent2$tosoc <- ifelse(str_detect(ob_sent2$bo_sentences,"societ|communit|public|law")==TRUE,1,0)
 #TALLY number of obligation sentences, to patient, to society, included BOTH column, but can be removed
-bn_sent <- sent2 %>% tally(, name = "n_sent")
+bn_sent <- ob_sent2 %>% tally(, name = "n_sent")
 bn_topat <- ob_sent2 %>% tally(topat, name = "n_topat")
 bn_tosoc <- ob_sent2 %>% tally(tosoc, name = "n_tosoc")
 bn_both <- ob_sent2 %>% tally(topat & tosoc, name = "n_both")
 Totals_bo <- cbind(bn_sent,bn_topat,bn_tosoc,bn_both)
 
 #MERGE tokenized dfs
+#by row
 test <- rbind(Totals_ab,Totals_bo)
+#by column
+
+test2 <- cbind(Totals_ab2,Totals_bo)
 rownames(test) <- c("abstract", "body")
 
 test$section <- c("ab","bo")
@@ -105,11 +113,34 @@ test$section <- c("ab","bo")
 #pairs(test)
 #Error in pairs.default(test) : non-numeric argument to 'pairs'
 
-corr_pat <- cor.test(x=test$n_sent, y=test$n_topat, method = 'spearman')
 
   #b. Abstract vs. body text percent patient
+corr_pat <- cor.test(x=test2$n_topat, y=test2$an_topat, method = 'spearman')
   #c. Abstract vs. body text percent society
-corr_soc <- cor.test(x=test$n_sent, y=test$n_tosoc, method = 'spearman')
-cor(test$n_topat,test$n_sent,
-    method = "spearman"
-)
+corr_soc <- cor.test(x=test2$n_tosoc, y=test2$an_tosoc, method = 'spearman')
+
+
+#---------------------------------------------------------------
+
+#LETS TRY CREATING DIF DF
+
+an_sent2 <- ob_sent %>%
+  group_by(pmcid) %>%
+  tally(,name = "an_sent")
+sentcount <- merge(ob_sent, an_sent2, by = c("pmcid","pmcid"))
+
+an_topat2 <- ob_sent %>%
+  group_by(pmcid) %>%
+  tally(topat, name = "an_topat")
+sentcount2 <- merge(ob_sent, an_topat2, by = c("pmcid","pmcid"))
+
+an_tosoc2 <- ob_sent %>%
+  group_by(pmcid) %>%
+  tally(tosoc, name = "an_tosoc")
+an_both2 <- ob_sent %>%
+  group_by(pmcid) %>%
+  tally(topat & tosoc, name = "an_both") 
+
+bind <- cbind(an_topat2,an_tosoc2)
+
+oi <- do.call("rbind", list(an_sent2,an_topat2,an_tosoc2, an_both2))
