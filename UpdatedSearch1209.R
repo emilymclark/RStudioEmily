@@ -113,6 +113,8 @@ test$section <- c("ab","bo")
         #Error in cor.test.default(x = test2$bn_sent, y = test2$an_sent, method = "spearman"): not enough finite observations
       #corr_sent <- corr.test(x=test2$bn_sent, y=test2$an_sent, method = 'spearman')
         #Error in corr.test(x = test2$bn_sent, y = test2$an_sent, method = "spearman"): could not find function "corr.test"
+      #corr_sent <- corr.test(test2)
+        #Error in corr.test(test2) : could not find function "corr.test"
       #pairs(test)
         #Error in pairs.default(test) : non-numeric argument to 'pairs'
    #b. Abstract vs. body text percent patient
@@ -134,7 +136,9 @@ test$section <- c("ab","bo")
     #c. Abstract vs. body text percent society
       #corr_soc <- cor.test(x=test2$bn_tosoc, y=test2$an_tosoc, method = 'spearman')
         #Error in cor.test.default(x = test2$bn_tosoc, y = test2$an_tosoc, method = "spearman"): not enough finite observations
-
+      #cor.test(formula = ~ bn_tosoc + an_tosoc, data = test2)
+        #Error in cor.test.default(x = 62, y = 3) : not enough finite observations
+        #Going tp try restarting r since I keep getting this error
 #---------------------------------------------------------------
 
 #LETS TRY CREATING DIF DF
