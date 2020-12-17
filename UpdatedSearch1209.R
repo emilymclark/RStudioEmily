@@ -17,9 +17,9 @@ library(tidyselect)
 library(tidyr)
 library(stringr)
 library(ggplot2)
-install.packages("psych")
+library(psych)
 # Set Entrez API key (https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/)
-key = "2cdae0e32dfdfbd4751843f66c5c791d8409"
+key = ""
 set_entrez_key(key)
 
 # Functions ---------------------------------------------------------------
@@ -52,13 +52,14 @@ data <- map_df(years,get_opioid_data)
 # Get available text data for top cited opioid articles
 text_data <- map_df(data$pmcid, extract_text)
 
-# Count N of articles with full body text available
 #Should this be "text_data" not "text"? - tried and worked
 #idk if this is right since I probably wasn't supposed to change anything
 text_data %>% filter(nchar(body)>1)%>% nrow()
 
+try <- na.omit(text_data)
+
+
 #but then what's this line for?
-#text_data <- text
 
 #combine data frames
 AllData <- text_data %>% inner_join(data, by = "pmcid") %>%
@@ -98,14 +99,10 @@ bn_both <- ob_sent2 %>% tally(topat & tosoc, name = "bn_both")
 Totals_bo <- cbind(bn_sent,bn_topat,bn_tosoc,bn_both)
 
 #MERGE tokenized dfs
-#by row
-test <- rbind(Totals_ab,Totals_bo)
+    #by row
+    #test <- rbind(Totals_ab,Totals_bo)
 #by column
-
 test2 <- cbind(Totals_ab,Totals_bo)
-rownames(test) <- c("abstract", "body")
-
-test$section <- c("ab","bo")
 
 #8. Create pairwise correlation plots:
   #a. Abstract vs. body text percent obligation
@@ -138,9 +135,13 @@ test$section <- c("ab","bo")
         #Error in cor.test.default(x = test2$bn_tosoc, y = test2$an_tosoc, method = "spearman"): not enough finite observations
       #cor.test(formula = ~ bn_tosoc + an_tosoc, data = test2)
         #Error in cor.test.default(x = 62, y = 3) : not enough finite observations
-        #Going tp try restarting r since I keep getting this error
-#---------------------------------------------------------------
+        #Going to try restarting r since I keep getting this error
 
+      
+#---------------------------------------------------------------
+      
+      
+      
 #LETS TRY CREATING DIF DF
 
 #Here I kept all of the other df info and attached tallies
