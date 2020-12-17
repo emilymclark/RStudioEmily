@@ -17,9 +17,9 @@ library(tidyselect)
 library(tidyr)
 library(stringr)
 library(ggplot2)
-
+install.packages("psych")
 # Set Entrez API key (https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/)
-key = ""
+key = "2cdae0e32dfdfbd4751843f66c5c791d8409"
 set_entrez_key(key)
 
 # Functions ---------------------------------------------------------------
@@ -74,16 +74,13 @@ sent <- unnest_tokens(AllData2, ab_sentences, "abstract", token = "sentences")
 ob_sent <- subset(sent, str_detect(sent$ab_sentences,"oblig|responsib|need|must|duty|duties|account|bound| owe|require|liability")==TRUE)
 ob_sent$topat <- ifelse(str_detect(ob_sent$ab_sentences,"patient|treat|pain|suffer|relief|relieve")==TRUE,1,0)
 ob_sent$tosoc <- ifelse(str_detect(ob_sent$ab_sentences,"societ|communit|public|law")==TRUE,1,0)
+ob_sent <- na.omit(ob_sent)
 #TALLY number of obligation sentences, to patient, to society, included BOTH column, but can be removed
-an_sent <- ob_sent %>% tally(,name = "n_sent")
-an_topat <- ob_sent %>% tally(topat, name = "n_topat")
-an_tosoc <- ob_sent %>% tally(tosoc, name = "n_tosoc")
-an_both <- ob_sent %>% tally(topat & tosoc, name = "n_both")
+an_sent <- ob_sent %>% tally(,name = "an_sent")
+an_topat <- ob_sent %>% tally(topat, name = "an_topat")
+an_tosoc <- ob_sent %>% tally(tosoc, name = "an_tosoc")
+an_both <- ob_sent %>% tally(topat & tosoc, name = "an_both")
 Totals_ab <- cbind(an_sent,an_topat,an_tosoc,an_both)
-
-#Duplicating df w/ dif column names
-Totals_ab2 <- cbind(an_sent,an_topat,an_tosoc,an_both)
-colnames(Totals_ab2) <- c("an_sent", "an_topat", "an_tosoc", "an_both")
 
 #TOKENIZE BODY
 sent2 <- unnest_tokens(AllData2, bo_sentences, "body", token = "sentences")
@@ -91,11 +88,13 @@ sent2 <- unnest_tokens(AllData2, bo_sentences, "body", token = "sentences")
 ob_sent2 <- subset(sent2, str_detect(sent2$bo_sentences,"oblig|responsib|need|must|duty|duties|account|bound| owe|require|liability")==TRUE)
 ob_sent2$topat <- ifelse(str_detect(ob_sent2$bo_sentences,"patient|treat|pain|suffer|relief|relieve")==TRUE,1,0)
 ob_sent2$tosoc <- ifelse(str_detect(ob_sent2$bo_sentences,"societ|communit|public|law")==TRUE,1,0)
+ob_sent2 <- na.omit(ob_sent2)
+
 #TALLY number of obligation sentences, to patient, to society, included BOTH column, but can be removed
-bn_sent <- ob_sent2 %>% tally(, name = "n_sent")
-bn_topat <- ob_sent2 %>% tally(topat, name = "n_topat")
-bn_tosoc <- ob_sent2 %>% tally(tosoc, name = "n_tosoc")
-bn_both <- ob_sent2 %>% tally(topat & tosoc, name = "n_both")
+bn_sent <- ob_sent2 %>% tally(, name = "bn_sent")
+bn_topat <- ob_sent2 %>% tally(topat, name = "bn_topat")
+bn_tosoc <- ob_sent2 %>% tally(tosoc, name = "bn_tosoc")
+bn_both <- ob_sent2 %>% tally(topat & tosoc, name = "bn_both")
 Totals_bo <- cbind(bn_sent,bn_topat,bn_tosoc,bn_both)
 
 #MERGE tokenized dfs
@@ -103,22 +102,38 @@ Totals_bo <- cbind(bn_sent,bn_topat,bn_tosoc,bn_both)
 test <- rbind(Totals_ab,Totals_bo)
 #by column
 
-test2 <- cbind(Totals_ab2,Totals_bo)
+test2 <- cbind(Totals_ab,Totals_bo)
 rownames(test) <- c("abstract", "body")
 
 test$section <- c("ab","bo")
 
 #8. Create pairwise correlation plots:
   #a. Abstract vs. body text percent obligation
-#pairs(test)
-#Error in pairs.default(test) : non-numeric argument to 'pairs'
-
-
-  #b. Abstract vs. body text percent patient
-corr_pat <- cor.test(x=test2$n_topat, y=test2$an_topat, method = 'spearman')
-  #c. Abstract vs. body text percent society
-corr_soc <- cor.test(x=test2$n_tosoc, y=test2$an_tosoc, method = 'spearman')
-
+      #corr_sent <- cor.test(x=test2$bn_sent, y=test2$an_sent, method = 'spearman')
+        #Error in cor.test.default(x = test2$bn_sent, y = test2$an_sent, method = "spearman"): not enough finite observations
+      #corr_sent <- corr.test(x=test2$bn_sent, y=test2$an_sent, method = 'spearman')
+        #Error in corr.test(x = test2$bn_sent, y = test2$an_sent, method = "spearman"): could not find function "corr.test"
+      #pairs(test)
+        #Error in pairs.default(test) : non-numeric argument to 'pairs'
+   #b. Abstract vs. body text percent patient
+      #corr_pat <- cor.test(x=test2$bn_topat, y=test2$an_topat, method = 'spearman')
+        #Error in cor.test.default(x = test2$bn_topat, y = test2$an_topat, method = "spearman"): not enough finite observations
+      #corr_pat <- cor.test(test2$bn_topat, test2$an_topat, method = 'spearman')
+        #Error in cor.test.default(test2$bn_topat, test2$an_topat, method = "spearman"): not enough finite observations
+      #Tried installing psych package bcus I thought I might have needed it to run corr.test (didn't work)
+      #corr_pat <- corr.test(test2$bn_topat, test2$an_topat, method = 'spearman')
+        #Error in corr.test(test2$bn_topat, test2$an_topat, method = "spearman"): could not find function "corr.test"
+      #corr_pat <- psych::corr.test(test2$bn_topat, test2$an_topat, method = 'spearman')
+        #Warning messages:
+          #1: In sqrt(n - 2) : NaNs produced
+          #2: In psych::corr.test(test2$bn_topat, test2$an_topat, method = "spearman") :
+            #Number of subjects must be greater than 3 to find confidence intervals.
+          #3: In sqrt(n - 3) : NaNs produced
+      #corr_pat <- corr.test(test2$bn_topat, test2$an_topat, use = "pairwise", method = 'spearman')
+        #Error in corr.test(test2$bn_topat, test2$an_topat, use = "pairwise", method = "spearman"): could not find function "corr.test"
+    #c. Abstract vs. body text percent society
+      #corr_soc <- cor.test(x=test2$bn_tosoc, y=test2$an_tosoc, method = 'spearman')
+        #Error in cor.test.default(x = test2$bn_tosoc, y = test2$an_tosoc, method = "spearman"): not enough finite observations
 
 #---------------------------------------------------------------
 
@@ -170,5 +185,9 @@ n_both2 <- ob_sent2 %>%
 b_sentcount4 <- merge(b_sentcount3, n_both2, by = c("pmcid","pmcid"))
 
 #b. Abstract vs. body text percent patient
-corr_pat <- cor.test(x=sentcount4$an_topat, y=b_sentcount4$n_topat,method = 'spearman')
+corr_pat <- cor.test(x=sentcount4$an_topat, y=b_sentcount4$n_topat, method = 'spearman')
 #Error in cor.test.default(x = sentcount4$an_topat, y = b_sentcount4$n_topat,  : 'x' and 'y' must have the same length
+corr_pat <- cor.test(x=sentcount4$an_topat, y=b_sentcount4$n_topat, method = 'spearman', by = c("pmcid","pmcid"))
+#Error in cor.test.default(x = sentcount4$an_topat, y = b_sentcount4$n_topat,  : 'x' and 'y' must have the same length
+cor.test(x=sentcount4$an_topat, y=b_sentcount4$n_topat, method = 'spearman')
+#Error 'x' and 'y' must have the same length
